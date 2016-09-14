@@ -1,0 +1,36 @@
+# Define Drush path, usually it's `/usr/local/bin`.
+aegir_drush_path: /usr/local/bin
+
+# Default Aegir directory, do not change.
+aegir_root: /var/aegir
+
+# Default Aegir user, do not change.
+aegir_user: aegir
+
+# Aegir provision version. It should be a stable release.
+aegir_provision_version: 7.x-3.7
+
+# Aegir provision version. It should be the same with provision version, do not change.
+aegir_platform_version: "{{ aegir_provision_version }}"
+
+# Every time we run this script, git will check for source updates.
+aegir_provision_update: false
+
+# TODO: replace with tpl file
+aegir_makefile_contents: "{{ lookup('file', aegir_makefile) }}"
+aegir_makefile: aegir.make
+
+# Database server, usually `localhost`.
+aegir_db_host: localhost
+
+# Database user, usually `aegir`.
+aegir_db_user: aegir
+
+# Database {{ aegir_db_user }} password.
+aegir_db_password: AEGIR_DB_PASSWORD
+
+# Aegir front-end URL.
+aegir_frontend_url: SUBDOMAIN.DOMAIN.TLD
+
+# Aegir admin email.
+aegir_client_email: ADMIN_EMAIL@DOMAIN.TLD
