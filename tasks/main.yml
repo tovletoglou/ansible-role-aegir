@@ -54,9 +54,10 @@
   become_user: "{{ aegir_user }}"
   environment:
     PATH: "{{ aegir_drush_path }}:{{ ansible_env.PATH }}"
- notify: restart httpd
+  notify: restart httpd
 
-- file:
+- name: Link httpd configuration with Aegir configuration.
+  file:
     src: /var/aegir/config/apache.conf
     dest: /etc/httpd/conf.d/aegir.conf
     state: link
