@@ -7,6 +7,8 @@ aegir_root: /var/aegir
 # Default Aegir user, do not change.
 aegir_user: aegir
 
+aegir_version : 3.7
+
 # Aegir provision version. It should be a stable release.
 aegir_provision_version: 7.x-3.7
 
