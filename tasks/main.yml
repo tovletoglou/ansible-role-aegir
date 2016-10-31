@@ -7,7 +7,7 @@
     repo: http://git.drupal.org/project/provision.git
     dest: "{{ aegir_root }}/.drush/provision"
     depth: 1 # Speeds things up
-    version: "{{ aegir_provision_version }}"
+    version: "{{ aegir_core }}-{{ aegir_version }}"
     update: "{{ aegir_provision_update }}"
   become: yes
   become_user: "{{ aegir_user }}"
@@ -22,16 +22,17 @@
   changed_when: false # This will never report 'changed' status. But it will report 'ok', 'unreachable' or 'failed'
 
 - name: Write Hostmaster makefile from template
-  copy:
-    dest: "{{ aegir_root }}/aegir.make"
-    content: "{{ aegir_makefile_contents }}"
+  template:
+    src: aegir.make.yml.j2
+    dest: "{{ aegir_root }}/aegir.make.yml"
     owner: "{{ aegir_user }}"
     group: "{{ aegir_user }}"
+    mode: 0644
 
 - name: Build Hostmaster platform
-  shell: "drush make {{ aegir_root }}/aegir.make {{ aegir_root }}/hostmaster-{{ aegir_platform_version }} --working-copy --no-gitinfofile"
+  shell: "drush make {{ aegir_root }}/aegir.make.yml {{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }} --working-copy --no-gitinfofile"
   args:
-    creates: "{{ aegir_root }}/hostmaster-{{ aegir_platform_version }}/"
+    creates: "{{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }}/"
   become: yes
   become_user: "{{ aegir_user }}"
   environment:
@@ -46,16 +47,17 @@
     state: present
 
 - name: Install Aegir front-end
-  shell: "drush @none --yes hostmaster-install --debug --working-copy --aegir_db_host={{ aegir_db_host | default('localhost') }} --aegir_db_user={{ aegir_db_user }} --aegir_db_pass=\"{{ aegir_db_password }}\" --aegir_version={{ aegir_platform_version }} {{ aegir_frontend_url }} --strict=0 --root={{ aegir_root }}/hostmaster-{{ aegir_platform_version }}/ --client_email={{ aegir_client_email }}"
+  shell: "drush @none --yes hostmaster-install --debug --working-copy --aegir_db_host={{ aegir_db_host | default('localhost') }} --aegir_db_user={{ aegir_db_user }} --aegir_db_pass=\"{{ aegir_db_password }}\" --aegir_version={{ aegir_core }}-{{ aegir_version }} {{ aegir_frontend_url }} --strict=0 --root={{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }}/ --client_email={{ aegir_client_email }}"
   args:
-    creates: "{{ aegir_root }}/hostmaster-{{ aegir_platform_version }}/sites/{{ aegir_frontend_url }}/"
+    creates: "{{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }}/sites/{{ aegir_frontend_url }}/"
   become: yes
   become_user: "{{ aegir_user }}"
   environment:
     PATH: "{{ aegir_drush_path }}:{{ ansible_env.PATH }}"
-  register: aegir_install
+  notify: restart httpd
 
-- file:
+- name: Link httpd configuration with Aegir configuration.
+  file:
     src: /var/aegir/config/apache.conf
     dest: /etc/httpd/conf.d/aegir.conf
     state: link
@@ -70,7 +72,3 @@
   environment:
     PATH: "{{ aegir_drush_path }}:{{ ansible_env.PATH }}"
   changed_when: false # This will never report 'changed' status. But it will report 'ok', 'unreachable' or 'failed'
-
-- name: restart httpd
-  service: name=httpd state=restarted
-  when: aegir_install.changed
