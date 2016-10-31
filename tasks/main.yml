@@ -7,7 +7,7 @@
     repo: http://git.drupal.org/project/provision.git
     dest: "{{ aegir_root }}/.drush/provision"
     depth: 1 # Speeds things up
-    version: "{{ aegir_provision_version }}"
+    version: "{{ aegir_core }}-{{ aegir_version }}"
     update: "{{ aegir_provision_update }}"
   become: yes
   become_user: "{{ aegir_user }}"
@@ -30,9 +30,9 @@
     mode: 0644
 
 - name: Build Hostmaster platform
-  shell: "drush make {{ aegir_root }}/aegir.make.yml {{ aegir_root }}/hostmaster-{{ aegir_platform_version }} --working-copy --no-gitinfofile"
+  shell: "drush make {{ aegir_root }}/aegir.make.yml {{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }} --working-copy --no-gitinfofile"
   args:
-    creates: "{{ aegir_root }}/hostmaster-{{ aegir_platform_version }}/"
+    creates: "{{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }}/"
   become: yes
   become_user: "{{ aegir_user }}"
   environment:
@@ -47,9 +47,9 @@
     state: present
 
 - name: Install Aegir front-end
-  shell: "drush @none --yes hostmaster-install --debug --working-copy --aegir_db_host={{ aegir_db_host | default('localhost') }} --aegir_db_user={{ aegir_db_user }} --aegir_db_pass=\"{{ aegir_db_password }}\" --aegir_version={{ aegir_platform_version }} {{ aegir_frontend_url }} --strict=0 --root={{ aegir_root }}/hostmaster-{{ aegir_platform_version }}/ --client_email={{ aegir_client_email }}"
+  shell: "drush @none --yes hostmaster-install --debug --working-copy --aegir_db_host={{ aegir_db_host | default('localhost') }} --aegir_db_user={{ aegir_db_user }} --aegir_db_pass=\"{{ aegir_db_password }}\" --aegir_version={{ aegir_core }}-{{ aegir_version }} {{ aegir_frontend_url }} --strict=0 --root={{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }}/ --client_email={{ aegir_client_email }}"
   args:
-    creates: "{{ aegir_root }}/hostmaster-{{ aegir_platform_version }}/sites/{{ aegir_frontend_url }}/"
+    creates: "{{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }}/sites/{{ aegir_frontend_url }}/"
   become: yes
   become_user: "{{ aegir_user }}"
   environment:
