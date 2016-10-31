@@ -13,6 +13,9 @@ aegir_provision_version: 7.x-3.7
 # Aegir provision version. It should be the same with provision version, do not change.
 aegir_platform_version: "{{ aegir_provision_version }}"
 
+# Aegir hostmaster version.
+aegir_hostmaster_version: "{{ aegir_provision_version }}"
+
 # Every time we run this script, git will check for source updates.
 aegir_provision_update: false
 

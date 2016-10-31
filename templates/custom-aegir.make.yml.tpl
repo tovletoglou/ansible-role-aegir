@@ -25,21 +25,17 @@ projects:
     type: "core"
     version: "7.x"
 
-  # Community contributed modules
-  # ---------------------------------------------------------------------------
-  # Extend and customize Drupal functionality with contributed modules.
-  # These modules are downloaded from drupal.org
-  # For more information about a module go to:
-  # https://www.drupal.org/project/MODULE_NAME
-  # e.g. https://www.drupal.org/project/admin_menu for the 'Administration Menu'
+  # Aegir's hostmaster module
+  # ----------------------------------------------------------------------------
+  hostmaster:
+    version: "{{ aegir_hostmaster_version }}"
 
+  # Community contributed modules
+  # ----------------------------------------------------------------------------
   # A better theme for admin menu.
   # Disable the Administration menu Toolbar style to avoid conflict.
   adminimal_admin_menu:
     version: ~
   # Better module management for Drupal.
   module_filter:
-    version: ~
-  # Aegir's hostmaster module.
-  hostmaster:
     version: ~
