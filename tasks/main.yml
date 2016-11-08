@@ -6,7 +6,7 @@
   git:
     repo: http://git.drupal.org/project/provision.git
     dest: "{{ aegir_root }}/.drush/provision"
-    depth: 1 # Speeds things up
+    # depth: 1 # Speeds things up # On ansible 2.2.0.0 there is bug: https://github.com/ansible/ansible-modules-core/issues/5457
     version: "{{ aegir_core }}-{{ aegir_version }}"
     update: "{{ aegir_provision_update }}"
   become: yes
