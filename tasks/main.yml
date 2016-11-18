@@ -47,7 +47,7 @@
     state: present
 
 - name: Install Aegir front-end
-  shell: "drush @none --yes hostmaster-install --debug --working-copy --aegir_db_host={{ aegir_db_host | default('localhost') }} --aegir_db_user={{ aegir_db_user }} --aegir_db_pass=\"{{ aegir_db_password }}\" --aegir_version={{ aegir_core }}-{{ aegir_version }} {{ aegir_frontend_url }} --strict=0 --root={{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }}/ --client_email={{ aegir_client_email }}"
+  shell: "drush --yes hostmaster-install --working-copy --aegir_db_host={{ aegir_db_host | default('localhost') }} --aegir_db_user={{ aegir_db_user }} --aegir_db_pass=\"{{ aegir_db_password }}\" {{ aegir_frontend_url }} --root={{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }}/ --client_email={{ aegir_client_email }}"
   args:
     creates: "{{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }}/sites/{{ aegir_frontend_url }}/"
   become: yes

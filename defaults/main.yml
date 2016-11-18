@@ -11,7 +11,7 @@ aegir_user: aegir
 aegir_core: 7.x
 
 # Aegir version. It should be a stable release.
-aegir_version: 3.7
+aegir_version: 3.8
 
 # Every time we run this script, git will check for source updates.
 aegir_provision_update: false
