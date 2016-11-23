@@ -1,4 +1,4 @@
-# Define Drush path, usually it's `/usr/local/bin`.
+# Define Drush path for Aegir, usually it's `/usr/local/bin`.
 aegir_drush_path: /usr/local/bin
 
 # Default Aegir directory, do not change.
@@ -30,3 +30,26 @@ aegir_frontend_url: SUBDOMAIN.DOMAIN.TLD
 
 # Aegir admin email.
 aegir_client_email: ADMIN_EMAIL@DOMAIN.TLD
+
+# Aegir modules to enable after install.
+aegir_modules_enable:
+  - views_ui
+  - module_filter
+  - adminimal_admin_menu
+  - hosting_cron
+  - hosting_task_gc
+  - hosting_ssl
+  - hosting_alias
+  - hosting_clone
+  - hosting_migrate
+  - hosting_drush_alias
+  - hosting_sync
+  - hosting_tasks_extra
+  - hosting_http_basic_auth
+  - hosting_backup_queue
+  - hosting_site_backup_manager
+
+# Aegir modules to disable after install.
+aegir_modules_disable:
+  - color
+  - help
