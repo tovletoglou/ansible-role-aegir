@@ -28,6 +28,9 @@ aegir_db_password: AEGIR_DB_PASSWORD
 # Aegir front-end URL.
 aegir_frontend_url: SUBDOMAIN.DOMAIN.TLD
 
+# Fully qualified domain name of the server.
+aegir_host_url: DOMAIN.TLD
+
 # Aegir admin email.
 aegir_client_email: ADMIN_EMAIL@DOMAIN.TLD
 
