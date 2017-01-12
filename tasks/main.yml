@@ -14,11 +14,9 @@
   #when: provision_folder.stat.isdir is not defined
 
 - name: Clear Drush cache for Provision extension
-  shell: drush @none cc drush
+  shell: "{{ aegir_drush }} @none cc drush"
   become: yes
   become_user: "{{ aegir_user }}"
-  environment:
-    PATH: "{{ aegir_drush_path }}:{{ ansible_env.PATH }}"
   changed_when: false # This will never report 'changed' status. But it will report 'ok', 'unreachable' or 'failed'
 
 - name: Write Hostmaster makefile from template
@@ -30,13 +28,11 @@
     mode: 0644
 
 - name: Build Hostmaster platform
-  shell: "drush make {{ aegir_root }}/aegir.make.yml {{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }} --working-copy --no-gitinfofile"
+  shell: "{{ aegir_drush }} make {{ aegir_root }}/aegir.make.yml {{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }} --working-copy --no-gitinfofile"
   args:
     creates: "{{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }}/"
   become: yes
   become_user: "{{ aegir_user }}"
-  environment:
-    PATH: "{{ aegir_drush_path }}:{{ ansible_env.PATH }}"
 
 - name: Create aegir db user
   mysql_user:
@@ -47,13 +43,11 @@
     state: present
 
 - name: Install Aegir front-end
-  shell: "drush --yes hostmaster-install --aegir_host={{ aegir_host_url }} --working-copy --aegir_db_host={{ aegir_db_host | default('localhost') }} --aegir_db_user={{ aegir_db_user }} --aegir_db_pass=\"{{ aegir_db_password }}\" {{ aegir_frontend_url }} --root={{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }}/ --client_email={{ aegir_client_email }}"
+  shell: "{{ aegir_drush }} --yes hostmaster-install --aegir_host={{ aegir_host_url }} --working-copy --aegir_db_host={{ aegir_db_host | default('localhost') }} --aegir_db_user={{ aegir_db_user }} --aegir_db_pass=\"{{ aegir_db_password }}\" {{ aegir_frontend_url }} --root={{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }}/ --client_email={{ aegir_client_email }}"
   args:
     creates: "{{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }}/sites/{{ aegir_frontend_url }}/"
   become: yes
   become_user: "{{ aegir_user }}"
-  environment:
-    PATH: "{{ aegir_drush_path }}:{{ ansible_env.PATH }}"
   notify: restart httpd
 
 - name: Link httpd configuration with Aegir configuration.
@@ -66,35 +60,27 @@
     mode: 0777
 
 - name: Verify Aegir front-end
-  shell: drush @hm cc drush && drush @hm hosting-task @hostmaster verify --force
+  shell: "{{ aegir_drush }} @hm cc drush && {{ aegir_drush }} @hm hosting-task @hostmaster verify --force"
   become: yes
   become_user: "{{ aegir_user }}"
-  environment:
-    PATH: "{{ aegir_drush_path }}:{{ ansible_env.PATH }}"
   changed_when: false # This will never report 'changed' status. But it will report 'ok', 'unreachable' or 'failed'
 
 - name: Enable Aegir modules
-  shell: drush --yes @hostmaster en {{ item }}
+  shell: "{{ aegir_drush }} --yes @hostmaster en {{ item }}"
   become: yes
   become_user: "{{ aegir_user }}"
   with_items: "{{ aegir_modules_enable }}"
-  environment:
-    PATH: "{{ aegir_drush_path }}:{{ ansible_env.PATH }}"
   changed_when: false # This will never report 'changed' status. But it will report 'ok', 'unreachable' or 'failed'
 
 - name: Disable Aegir modules
-  shell: drush --yes @hostmaster dis {{ item }}
+  shell: "{{ aegir_drush }} --yes @hostmaster dis {{ item }}"
   become: yes
   become_user: "{{ aegir_user }}"
   with_items: "{{ aegir_modules_disable }}"
-  environment:
-    PATH: "{{ aegir_drush_path }}:{{ ansible_env.PATH }}"
   changed_when: false # This will never report 'changed' status. But it will report 'ok', 'unreachable' or 'failed'
 
 - name: Update Aegir modules
-  shell: drush --yes @hostmaster pm-update
+  shell: "{{ aegir_drush }} --yes @hostmaster pm-update"
   become: yes
   become_user: "{{ aegir_user }}"
-  environment:
-    PATH: "{{ aegir_drush_path }}:{{ ansible_env.PATH }}"
   changed_when: false # This will never report 'changed' status. But it will report 'ok', 'unreachable' or 'failed'

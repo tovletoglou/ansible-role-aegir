@@ -1,5 +1,5 @@
 # Define Drush path for Aegir, usually it's `/usr/local/bin`.
-aegir_drush_path: /usr/local/bin
+aegir_drush: /usr/local/bin/drush
 
 # Default Aegir directory, do not change.
 aegir_root: /var/aegir
