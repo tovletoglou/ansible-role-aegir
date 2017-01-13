@@ -1,87 +1,22 @@
-#- name: Register {{ aegir_root }}/.drush/provision
-#  stat: path="{{ aegir_root }}/.drush/provision"
-#  register: provision_folder
+---
 
-- name: Clone Provision
-  git:
-    repo: http://git.drupal.org/project/provision.git
-    dest: "{{ aegir_root }}/.drush/provision"
-    # depth: 1 # Speeds things up # On ansible 2.2.0.0 there is bug: https://github.com/ansible/ansible-modules-core/issues/5457
-    version: "{{ aegir_core }}-{{ aegir_version }}"
-    update: "{{ aegir_provision_update }}"
+- name: Check if Aegir is exist
+  shell: "{{ aegir_drush }} sa | { \\grep '@hm' || true; }" # grep will return false and break the playbook, so we add always return true.
   become: yes
   become_user: "{{ aegir_user }}"
-  #when: provision_folder.stat.isdir is not defined
+  register: check_aegir_exist
+  changed_when: false
 
-- name: Clear Drush cache for Provision extension
-  shell: "{{ aegir_drush }} @none cc drush"
-  become: yes
-  become_user: "{{ aegir_user }}"
-  changed_when: false # This will never report 'changed' status. But it will report 'ok', 'unreachable' or 'failed'
+- name: Call the initial setup
+  include: aegir-setup.yml
+  when: check_aegir_exist.stdout == "" # If the `drush sa | grep '@hm'` doesn't find anything (empty string) then install Aegir.
 
-- name: Write Hostmaster makefile from template
-  template:
-    src: aegir.make.yml.j2
-    dest: "{{ aegir_root }}/aegir.make.yml"
-    owner: "{{ aegir_user }}"
-    group: "{{ aegir_user }}"
-    mode: 0644
+- name: Check Aegir version
+  command: \grep -oh "3.[0-9]*" /var/aegir/.drush/provision/aegir.make
+  register: check_aegir_version
+  changed_when: false
+  when: check_aegir_exist.stdout == "@hm" # If the `drush sa | grep '@hm'` finds hostmaster then find the Aegir version.
 
-- name: Build Hostmaster platform
-  shell: "{{ aegir_drush }} make {{ aegir_root }}/aegir.make.yml {{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }} --working-copy --no-gitinfofile"
-  args:
-    creates: "{{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }}/"
-  become: yes
-  become_user: "{{ aegir_user }}"
-
-- name: Create aegir db user
-  mysql_user:
-    name: aegir
-    host: "%"
-    password: "{{ aegir_db_password }}"
-    priv: "*.*:ALL,GRANT"
-    state: present
-
-- name: Install Aegir front-end
-  shell: "{{ aegir_drush }} --yes hostmaster-install --aegir_host={{ aegir_host_url }} --working-copy --aegir_db_host={{ aegir_db_host | default('localhost') }} --aegir_db_user={{ aegir_db_user }} --aegir_db_pass=\"{{ aegir_db_password }}\" {{ aegir_frontend_url }} --root={{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }}/ --client_email={{ aegir_client_email }}"
-  args:
-    creates: "{{ aegir_root }}/hostmaster-{{ aegir_core }}-{{ aegir_version }}/sites/{{ aegir_frontend_url }}/"
-  become: yes
-  become_user: "{{ aegir_user }}"
-  notify: restart httpd
-
-- name: Link httpd configuration with Aegir configuration.
-  file:
-    src: /var/aegir/config/apache.conf
-    dest: /etc/httpd/conf.d/aegir.conf
-    state: link
-    owner: root
-    group: root
-    mode: 0777
-
-- name: Verify Aegir front-end
-  shell: "{{ aegir_drush }} @hm cc drush && {{ aegir_drush }} @hm hosting-task @hostmaster verify --force"
-  become: yes
-  become_user: "{{ aegir_user }}"
-  changed_when: false # This will never report 'changed' status. But it will report 'ok', 'unreachable' or 'failed'
-
-- name: Enable Aegir modules
-  shell: "{{ aegir_drush }} --yes @hostmaster en {{ item }}"
-  become: yes
-  become_user: "{{ aegir_user }}"
-  with_items: "{{ aegir_modules_enable }}"
-  changed_when: false # This will never report 'changed' status. But it will report 'ok', 'unreachable' or 'failed'
-
-- name: Disable Aegir modules
-  shell: "{{ aegir_drush }} --yes @hostmaster dis {{ item }}"
-  become: yes
-  become_user: "{{ aegir_user }}"
-  with_items: "{{ aegir_modules_disable }}"
-  changed_when: false # This will never report 'changed' status. But it will report 'ok', 'unreachable' or 'failed'
-
-# TODO: Updateting modules may break the hostmaster if it try to update any part of the Aegir modules and not the generic (like ctools).
-# - name: Update Aegir modules
-#   shell: "{{ aegir_drush }} --yes @hostmaster pm-update"
-#   become: yes
-#   become_user: "{{ aegir_user }}"
-#   changed_when: false # This will never report 'changed' status. But it will report 'ok', 'unreachable' or 'failed'
+- name: Update if version is greater than current
+  include: aegir-update.yml
+  when: "{{ check_aegir_version.stdout | default(100) }} < {{ aegir_version }}" # If Aegir does not exist check_aegir_version will be NULL, so we initialize it with a big number to avoid run the update. If hostmaster version is smaller then update Aegir.

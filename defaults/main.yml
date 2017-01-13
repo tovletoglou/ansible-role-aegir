@@ -1,3 +1,5 @@
+---
+
 # Define Drush path for Aegir, usually it's `/usr/local/bin`.
 aegir_drush: /usr/local/bin/drush
 
@@ -10,11 +12,8 @@ aegir_user: aegir
 # Drupal core used by Aegir.
 aegir_core: 7.x
 
-# Aegir version. It should be a stable release.
-aegir_version: 3.8
-
-# Every time we run this script, git will check for source updates.
-aegir_provision_update: false
+# Aegir version to update. It should be a stable release.
+aegir_version: 3.9
 
 # Database server, usually `localhost`.
 aegir_db_host: localhost
