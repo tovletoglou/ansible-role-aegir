@@ -34,24 +34,11 @@ aegir_host_url: DOMAIN.TLD
 aegir_client_email: ADMIN_EMAIL@DOMAIN.TLD
 
 # Aegir modules to enable after install.
+# Do not enable hosting_* modules before the hosting-queued daemon, otherwise the daemon does not run.
 aegir_modules_enable:
-  - adminimal_admin_menu
-  - hosting_alias
-  - hosting_backup_queue
-  - hosting_clone
-  - hosting_cron
-  - hosting_drush_alias
-  - hosting_http_basic_auth
-  - hosting_migrate
-  - hosting_site_backup_manager
-  - hosting_ssl
-  - hosting_sync
-  - hosting_task_gc
-  - hosting_tasks_extra
-  - module_filter
-  - views_ui
+  # - views_ui
 
 # Aegir modules to disable after install.
 aegir_modules_disable:
-  - color
-  - help
+  # - color
+  # - help
