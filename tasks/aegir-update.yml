@@ -1,62 +1,59 @@
 ---
 
-- name: Clear Drush cache
+- name: Update - Clear Drush cache
   shell: "{{ aegir_drush }} @none cc drush"
   become: yes
   become_user: "{{ aegir_user }}"
-  changed_when: false
 
-- name: Delete Drush cache
+- name: Update - Delete Drush cache
   file:
     state: absent
     path: "/var/aegir/.drush/cache/"
 
 # TODO: On Ansible 2.3.x replace `shell: zip` with native Ansible task: `archive`
-- name: Backup Provision
+- name: Update - Backup Provision
   shell: zip -r {{ aegir_root }}/backup-.drush-$(date +'%Y_%m_%d-%H_%M_%S').zip /var/aegir/.drush/
   become: yes
   become_user: "{{ aegir_user }}"
 
-- name: Find Hostmaster path
+- name: Update - Find Hostmaster path
   shell: "{{ aegir_drush }} @hm st | \\grep 'Drupal root' | \\grep -oh '/var/aegir/\\S*'"
   become: yes
   become_user: "{{ aegir_user }}"
   register: aegir_hostmaster_path
-  changed_when: false
 
 # TODO: On Ansible 2.3.x replace `shell: zip` with native Ansible task: `archive`
-- name: Backup Hostmaster
+- name: Update - Backup Hostmaster
   shell: "zip -r {{ aegir_root }}/backup-hostmaster-$(date +'%Y_%m_%d-%H_%M_%S').zip {{ aegir_hostmaster_path.stdout }}"
   become: yes
   become_user: "{{ aegir_user }}"
 
-- name: Backup Hostmaster database
+- name: Update - Backup Hostmaster database
   shell: "{{ aegir_drush }} @hm sql-dump > {{ aegir_root }}/backup-hostmaster-db-$(date +'%Y_%m_%d-%H_%M_%S').sql"
   become: yes
   become_user: "{{ aegir_user }}"
 
-# - name: Update Provision
+# - name: Update - Update Provision
 #   shell: "{{ aegir_drush }} --yes dl --destination={{ aegir_root }}/.drush provision-7.x-{{ aegir_version }}"
 #   become: yes
 #   become_user: "{{ aegir_user }}"
 
-- name: Checkout new Provision version
+- name: Update - Checkout new Provision version
   git:
     repo: http://git.drupal.org/project/provision.git
     dest: "{{ aegir_root }}/.drush/provision"
-    # depth: 1 # Speeds things up # On ansible 2.2.0.0 there is bug: https://github.com/ansible/ansible-modules-core/issues/5457
+    # depth: 1 # Speeds things up # It doesn't work on Ansible 2.2: https://github.com/ansible/ansible-modules-core/issues/5457
     version: "{{ aegir_core }}-{{ aegir_version }}"
     update: true
   become: yes
   become_user: "{{ aegir_user }}"
 
-- name: Clear Drush cache
+- name: Update - Clear Drush cache
   shell: "{{ aegir_drush }} @none cc drush"
   become: yes
   become_user: "{{ aegir_user }}"
-  changed_when: false
 
-- name: Write Hostmaster makefile from template
+- name: Update - Write Hostmaster makefile from template
   template:
     src: aegir.make.yml.j2
     dest: "{{ aegir_root }}/aegir.make.yml"
@@ -64,18 +61,10 @@
     group: "{{ aegir_user }}"
     mode: 0644
 
-- name: Update Hostmaster
+- name: Update - Update Hostmaster
   shell: "{{ aegir_drush }} --yes @hostmaster hostmaster-migrate {{ aegir_frontend_url }} {{ aegir_root }}/hostmaster-7.x-{{ aegir_version }} --makefile='{{ aegir_root }}/aegir.make.yml'"
   become: yes
   become_user: "{{ aegir_user }}"
-  changed_when: false
-
-- name: Find new Hostmaster path
-  shell: "{{ aegir_drush }} @hm st | \\grep 'Drupal root' | \\grep -oh '/var/aegir/\\S*'"
-  become: yes
-  become_user: "{{ aegir_user }}"
-  register: aegir_hostmaster_path_new
-  changed_when: false
 
 # TODO: hosting-queued refuse to start after update. Running the role `ansible-role-aegir-hosting-queued` fix the problem.
 # - name: Restart Hosting Queued
