@@ -19,4 +19,4 @@
 
 - name: Update if version is greater than current
   include: aegir-update.yml
-  when: "{{ check_aegir_version.stdout | default(100) }} < {{ aegir_version }}" # If Aegir does not exist check_aegir_version will be NULL, so we initialize it with a big number to avoid run the update. If hostmaster version is smaller then update Aegir.
+  when: "{{ check_aegir_version.stdout | default(100) | version_compare(aegir_version, '<') }}" # If Aegir does not exist check_aegir_version will be NULL, so we initialize it with a big number to avoid run the update. If hostmaster version is smaller then update Aegir.
