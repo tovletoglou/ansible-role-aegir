@@ -13,7 +13,7 @@ aegir_user: aegir
 aegir_core: 7.x
 
 # Aegir version to update. It should be a stable release.
-aegir_version: 3.9
+aegir_version: "3.10"
 
 # Database server, usually `localhost`.
 aegir_db_host: localhost
