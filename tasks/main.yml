@@ -8,7 +8,7 @@
   changed_when: false
 
 - name: Call the initial setup
-  include: aegir-setup.yml
+  include_tasks: aegir-setup.yml
   when: check_aegir_exist.stdout == "" # If the `drush sa | grep '@hm'` doesn't find anything (empty string) then install Aegir.
 
 - name: Check Aegir version
@@ -18,5 +18,5 @@
   when: check_aegir_exist.stdout == "@hm" # If the `drush sa | grep '@hm'` finds hostmaster then find the Aegir version.
 
 - name: Update if version is greater than current
-  include: aegir-update.yml
+  include_tasks: aegir-update.yml
   when: check_aegir_version.stdout | default(100) | version_compare(aegir_version, '<') # If Aegir does not exist check_aegir_version will be NULL, so we initialize it with a big number to avoid run the update. If hostmaster version is smaller then update Aegir.
