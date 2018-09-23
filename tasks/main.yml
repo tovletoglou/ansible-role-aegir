@@ -20,3 +20,39 @@
 - name: Update if version is greater than current
   include_tasks: aegir-update.yml
   when: check_aegir_version.stdout | default(100) | version_compare(aegir_version, '<') # If Aegir does not exist check_aegir_version will be NULL, so we initialize it with a big number to avoid run the update. If hostmaster version is smaller then update Aegir.
+
+- name: Deploy scripts fix-drupal-platform-ownership.sh
+  copy:
+    src: "{{ aegir_root }}/hostmaster-7.x-{{ aegir_version }}/profiles/hostmaster/modules/aegir/hosting_tasks_extra/fix_ownership/scripts/fix-drupal-platform-ownership.sh"
+    dest: /usr/local/bin/fix-drupal-platform-ownership.sh
+    remote_src: yes
+    owner: root
+    group: root
+    mode: 0550
+
+- name: Deploy scripts fix-drupal-platform-permissions.sh
+  copy:
+    src: "{{ aegir_root }}/hostmaster-7.x-{{ aegir_version }}/profiles/hostmaster/modules/aegir/hosting_tasks_extra/fix_permissions/scripts/fix-drupal-platform-permissions.sh"
+    dest: /usr/local/bin/fix-drupal-platform-permissions.sh
+    remote_src: yes
+    owner: root
+    group: root
+    mode: 0550
+
+- name: Deploy script fix-drupal-site-permissions.sh
+  copy:
+    src: "{{ aegir_root }}/hostmaster-7.x-{{ aegir_version }}/profiles/hostmaster/modules/aegir/hosting_tasks_extra/fix_permissions/scripts/fix-drupal-site-permissions.sh"
+    dest: /usr/local/bin/fix-drupal-site-permissions.sh
+    remote_src: yes
+    owner: root
+    group: root
+    mode: 0550
+
+- name: Deploy script fix-drupal-site-ownership.sh
+  copy:
+    src: "{{ aegir_root }}/hostmaster-7.x-{{ aegir_version }}/profiles/hostmaster/modules/aegir/hosting_tasks_extra/fix_ownership/scripts/fix-drupal-site-ownership.sh"
+    dest: /usr/local/bin/fix-drupal-site-ownership.sh
+    remote_src: yes
+    owner: root
+    group: root
+    mode: 0550
